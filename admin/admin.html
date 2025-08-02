@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="creator" content="@Kashif Shaikh" />
+  <meta name="description" content="SMART GRUH UDHYOG Admin Panel" />
+  <link rel="shortcut icon" href="../assets/img/smarts.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css" />
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <title>Admin - Manage Products & Categories</title>
+  <style>
+    .admin-container {
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .admin-container h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    .form-section label {
+      display: block;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    .form-section input, .form-section select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      background: #e55;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .success-msg {
+      color: green;
+      margin-top: 1rem;
+    }
+    .product-list {
+      margin-top: 1rem;
+    }
+    .product-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 0.5rem;
+    }
+    .remove-btn {
+      background: crimson;
+      padding: 0.3rem 0.8rem;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<header class="header" id="header">
+  <nav class="nav container">
+    <a href="#" class="nav__logo" title="SMART GRUH UDHYOG">
+      <img src="../assets/img/smarts.jpg" class="logo" alt="logo" height="10" width="10" />
+    </a>
+    <div class="nav__menu" id="nav-menu">
+      <ul class="nav__list">
+        <li><a href="user/home.html" class="nav__link">Home</a></li>
+        <li><a href="admin_login_manager.html" class="nav__link">Admin Panel</a></li>
+        <li><a href="admin.html" class="nav__link active-link">Product Panel</a></li>
+        <li><a href="adminorder.html" class="nav__link">Order History</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+<br><br><br>
+<div class="admin-container">
+  <h2>Admin Panel - Manage Products & Categories</h2>
+
+  <!-- Add Category -->
+  <div class="form-section">
+    <h3>Add New Category</h3>
+    <label for="newCategory">Category Name</label>
+    <input type="text" id="newCategory" placeholder="e.g., Wafers" />
+    <button onclick="addCategory()">Add Category</button>
+    <p class="success-msg" id="categoryMsg"></p>
+  </div>
+
+  <!-- Add Product -->
+  <div class="form-section">
+    <h3>Add New Product</h3>
+    <label for="categorySelect">Select Category</label>
+    <select id="categorySelect"></select>
+    <label for="productTitle">Product Title</label>
+    <input type="text" id="productTitle" placeholder="e.g., Aalu Bhujia" />
+    <label for="productSubtitle">Subtitle</label>
+    <input type="text" id="productSubtitle" placeholder="e.g., Spicy" />
+    <label for="productImage">Image Path</label>
+    <input type="text" id="productImage" placeholder="../assets/img/aalu.png" />
+    <button onclick="addProduct()">Add Product</button>
+    <p class="success-msg" id="productMsg"></p>
+  </div>
+
+  <!-- Remove Product -->
+  <div class="form-section">
+    <h3>Remove Product</h3>
+    <label for="removeCategory">Select Category</label>
+    <select id="removeCategory" onchange="loadProductsForRemoval()"></select>
+    <div class="product-list" id="removalProductList"></div>
+  </div>
+
+  <!-- Remove Category -->
+  <div class="form-section">
+    <h3>Remove Category</h3>
+    <label for="deleteCategory">Select Category to Remove</label>
+    <select id="deleteCategory"></select>
+    <button onclick="removeCategory()">Delete Category</button>
+    <p class="success-msg" id="deleteCategoryMsg"></p>
+  </div>
+</div>
+<a href="#" class="scrollup" id="scroll-up" aria-label="icon">
+  <i class="ri-arrow-up-double-line"></i>
+</a>
+<script src="../assets/js/scrollreveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+  function loadCategories() {
+    const categories = JSON.parse(localStorage.getItem("categories") || "[]");
+    const categorySelect = document.getElementById("categorySelect");
+    const removeCategory = document.getElementById("removeCategory");
+    const deleteCategory = document.getElementById("deleteCategory");
+
+    const optionsHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+    categorySelect.innerHTML = optionsHTML;
+    removeCategory.innerHTML = optionsHTML;
+    deleteCategory.innerHTML = optionsHTML;
+  }
+
+  function addCategory() {
+    const newCat = document.getElementById("newCategory").value.trim();
+    const msg = document.getElementById("categoryMsg");
+    if (!newCat) return msg.innerText = "Category cannot be empty.";
+
+    let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+    if (categories.includes(newCat)) {
+      msg.innerText = "Category already exists.";
+      return;
+    }
+
+    categories.push(newCat);
+    localStorage.setItem("categories", JSON.stringify(categories));
+    msg.innerText = `Category "${newCat}" added.`;
+    document.getElementById("newCategory").value = "";
+    loadCategories();
+  }
+
+  function addProduct() {
+    const category = document.getElementById("categorySelect").value;
+    const title = document.getElementById("productTitle").value.trim();
+    const subtitle = document.getElementById("productSubtitle").value.trim();
+    const image = document.getElementById("productImage").value.trim();
+    const msg = document.getElementById("productMsg");
+
+    if (!title || !subtitle || !image) {
+      msg.innerText = "All product fields are required.";
+      return;
+    }
+
+    const product = { title, subtitle, image };
+    const allProducts = JSON.parse(localStorage.getItem("products") || "{}");
+    if (!allProducts[category]) allProducts[category] = [];
+    allProducts[category].push(product);
+    localStorage.setItem("products", JSON.stringify(allProducts));
+
+    msg.innerText = `Product "${title}" added to ${category}.`;
+    document.getElementById("productTitle").value = "";
+    document.getElementById("productSubtitle").value = "";
+    document.getElementById("productImage").value = "";
+    loadProductsForRemoval();
+  }
+
+  function loadProductsForRemoval() {
+    const category = document.getElementById("removeCategory").value;
+    const productList = document.getElementById("removalProductList");
+    const allProducts = JSON.parse(localStorage.getItem("products") || "{}");
+    const products = allProducts[category] || [];
+
+    if (products.length === 0) {
+      productList.innerHTML = "<p>No products in this category.</p>";
+      return;
+    }
+
+    productList.innerHTML = products.map((p, index) => `
+      <div class="product-item">
+        <span>${p.title} (${p.subtitle})</span>
+        <button class="remove-btn" onclick="removeProduct('${category}', ${index})">Remove</button>
+      </div>
+    `).join('');
+  }
+
+  function removeProduct(category, index) {
+    const allProducts = JSON.parse(localStorage.getItem("products") || "{}");
+    if (allProducts[category]) {
+      allProducts[category].splice(index, 1);
+      localStorage.setItem("products", JSON.stringify(allProducts));
+      loadProductsForRemoval();
+    }
+  }
+
+  function removeCategory() {
+    const catSelect = document.getElementById("deleteCategory");
+    const selectedCategory = catSelect.value;
+    const msg = document.getElementById("deleteCategoryMsg");
+
+    if (!selectedCategory) {
+      msg.innerText = "Please select a category.";
+      return;
+    }
+
+    let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+    categories = categories.filter(cat => cat !== selectedCategory);
+    localStorage.setItem("categories", JSON.stringify(categories));
+
+    let allProducts = JSON.parse(localStorage.getItem("products") || "{}");
+    delete allProducts[selectedCategory];
+    localStorage.setItem("products", JSON.stringify(allProducts));
+
+    msg.innerText = `Category "${selectedCategory}" and its products removed.`;
+    loadCategories();
+    loadProductsForRemoval();
+  }
+
+  window.onload = () => {
+    loadCategories();
+    loadProductsForRemoval();
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <meta name="creator" content="@Kashif Shaikh">
+   <meta name="description" content="SMART GRUH UDHYOG">
+
+   <!--=============== FAVICON ===============-->
+   <link rel="shortcut icon" href="../assets/img/smarts.jpg" type="image/x-icon">
+
+   <!--=============== REMIXICONS ===============-->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+
+   <!--=============== SWIPER CSS CDN ===============-->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="../assets/css/styles.css">
+   
+
+   <title>SMART GRUH UDHYOG</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .filter-bar input, .filter-bar select, .filter-bar button {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .export-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #e55;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .order-card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .export-actions {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!--==================== HEADER ====================-->
+<header class="header" id="header">
+  <nav class="nav container">
+    <a href="#" class="nav__logo" title="SMART GRUH UDHYOG">
+      <img src="../assets/img/smarts.jpg" class="logo" alt="logo" height="10" weight="10" />
+    </a>
+    <div class="nav__menu" id="nav-menu">
+      <ul class="nav__list">
+        <li><a href="user/home.html" class="nav__link">Home</a></li>
+        <li><a href="admin_login_manager.html" class="nav__link">Admin Panel</a></li>
+		<li><a href="admin.html" class="nav__link">Product Panel</a></li>
+        <li><a href="adminorder.html" class="nav__link active-link">Order History</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<br><br><br>
+
+  <main class="section" style="padding: 2rem;">
+    <h2 class="section__title">Dealer Order History</h2>
+
+    <div class="filter-bar">
+      <input type="date" id="dateFrom" />
+      <input type="date" id="dateTo" />
+      <select id="dealerFilter">
+        <option value="">All Dealers</option>
+      </select>
+      <button onclick="applyFilters()">Apply Filters</button>
+      <button class="export-btn" onclick="exportAllCSV()">Export All (CSV)</button>
+      <button class="export-btn" onclick="exportAllPDF()">Export All (PDF)</button>
+    </div>
+
+    <div id="adminOrderContainer"></div>
+  </main>
+
+  <script>
+    // Simulated price list
+    const productPrices = {
+      "Mix Chavana (Tikha-Meetha)": 80,
+      "Khatta Meetha": 70,
+      "Sev Mamra": 60,
+      "Farsan": 85,
+      "Bhel Mix": 75
+    };
+
+    let allOrders = [];
+    let filteredOrders = [];
+
+    function loadAdminOrders() {
+      const container = document.getElementById("adminOrderContainer");
+      allOrders = JSON.parse(localStorage.getItem("adminOrderHistory") || "[]");
+      filteredOrders = allOrders;
+
+      populateDealerFilter();
+      renderOrders(filteredOrders);
+    }
+
+    function populateDealerFilter() {
+      const dealerSet = new Set(allOrders.map(o => o.dealerId));
+      const dealerFilter = document.getElementById("dealerFilter");
+      dealerFilter.innerHTML = '<option value="">All Dealers</option>';
+      dealerSet.forEach(id => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = id;
+        dealerFilter.appendChild(option);
+      });
+    }
+
+    function applyFilters() {
+      const from = document.getElementById("dateFrom").value;
+      const to = document.getElementById("dateTo").value;
+      const dealer = document.getElementById("dealerFilter").value;
+
+      filteredOrders = allOrders.filter(order => {
+        const orderDate = new Date(order.timestamp.split(',')[0]);
+        const fromDate = from ? new Date(from) : null;
+        const toDate = to ? new Date(to) : null;
+        const matchDealer = dealer ? order.dealerId === dealer : true;
+        const matchDate = (!fromDate || orderDate >= fromDate) && (!toDate || orderDate <= toDate);
+        return matchDealer && matchDate;
+      });
+
+      renderOrders(filteredOrders);
+    }
+
+    function renderOrders(data) {
+      const container = document.getElementById("adminOrderContainer");
+      if (data.length === 0) {
+        container.innerHTML = "<p>No matching orders found.</p>";
+        return;
+      }
+
+      container.innerHTML = data.map((order, index) => {
+        const total = order.items.reduce((sum, item) => {
+          const price = productPrices[item.name] || 0;
+          return sum + price * item.quantity;
+        }, 0);
+
+        return `
+        <div class="order-card">
+          <h4>Dealer ID: ${order.dealerId}</h4>
+          <p><strong>Date:</strong> ${order.timestamp}</p>
+          <ul>
+            ${order.items.map(i => `
+              <li>${i.name} — Qty: ${i.quantity}, Price: ₹${productPrices[i.name] || 0}, Total: ₹${(productPrices[i.name] || 0) * i.quantity}</li>
+            `).join("")}
+          </ul>
+          <p><strong>Grand Total: ₹${total}</strong></p>
+          <div class="export-actions">
+            <button class="export-btn" onclick="exportSingleCSV(${index})">Export CSV</button>
+            <button class="export-btn" onclick="exportSinglePDF(${index})">Export PDF</button>
+          </div>
+        </div>
+        `;
+      }).join('');
+    }
+
+    function exportAllCSV() {
+      let csv = "Company,Dealer ID,Date,Product,Quantity,Per Price,Total Price\n";
+      filteredOrders.forEach(order => {
+        order.items.forEach(item => {
+          const price = productPrices[item.name] || 0;
+          const total = price * item.quantity;
+          csv += `"Smart Gruh Udhyog","${order.dealerId}","${order.timestamp}","${item.name}",${item.quantity},${price},${total}\n`;
+        });
+      });
+      downloadFile(csv, "all_orders.csv", "text/csv");
+    }
+
+    function exportSingleCSV(index) {
+      const order = filteredOrders[index];
+      let csv = "Company,Dealer ID,Date,Product,Quantity,Per Price,Total Price\n";
+      order.items.forEach(item => {
+        const price = productPrices[item.name] || 0;
+        const total = price * item.quantity;
+        csv += `"Smart Gruh Udhyog","${order.dealerId}","${order.timestamp}","${item.name}",${item.quantity},${price},${total}\n`;
+      });
+      downloadFile(csv, `order_${index + 1}.csv`, "text/csv");
+    }
+
+    function exportAllPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+
+      filteredOrders.forEach((order, idx) => {
+        doc.setFontSize(14);
+        doc.text("Smart Gruh Udhyog", 10, y);
+        y += 8;
+        doc.setFontSize(11);
+        doc.text(`Dealer ID: ${order.dealerId}`, 10, y);
+        y += 6;
+        doc.text(`Date: ${order.timestamp}`, 10, y);
+        y += 7;
+
+        let total = 0;
+        order.items.forEach(item => {
+          const price = productPrices[item.name] || 0;
+          const lineTotal = price * item.quantity;
+          doc.text(`• ${item.name} — Qty: ${item.quantity}, ₹${price}/unit = ₹${lineTotal}`, 15, y);
+          y += 6;
+          total += lineTotal;
+          if (y > 270) { doc.addPage(); y = 10; }
+        });
+
+        doc.text(`Total: ₹${total}`, 15, y);
+        y += 10;
+        if (y > 270) { doc.addPage(); y = 10; }
+      });
+
+      doc.save("all_orders.pdf");
+    }
+
+    function exportSinglePDF(index) {
+      const order = filteredOrders[index];
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+
+      doc.setFontSize(14);
+      doc.text("Smart Gruh Udhyog", 10, y);
+      y += 8;
+      doc.setFontSize(11);
+      doc.text(`Dealer ID: ${order.dealerId}`, 10, y);
+      y += 6;
+      doc.text(`Date: ${order.timestamp}`, 10, y);
+      y += 7;
+
+      let total = 0;
+      order.items.forEach(item => {
+        const price = productPrices[item.name] || 0;
+        const lineTotal = price * item.quantity;
+        doc.text(`• ${item.name} — Qty: ${item.quantity}, ₹${price}/unit = ₹${lineTotal}`, 15, y);
+        y += 6;
+        total += lineTotal;
+      });
+
+      doc.text(`Total: ₹${total}`, 15, y + 5);
+      doc.save(`order_${order.dealerId}_${index + 1}.pdf`);
+    }
+
+    function downloadFile(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    window.onload = loadAdminOrders;
+  </script>
+</body>
+</html>

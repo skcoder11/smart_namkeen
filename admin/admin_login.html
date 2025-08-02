@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="../assets/img/smarts.jpg" type="image/x-icon" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body>
+  <div class="container" style="max-width: 400px; margin: 5rem auto; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h2 style="text-align:center;">Admin Login</h2>
+    <form id="adminLoginForm">
+      <label for="adminUsername">Username:</label>
+      <input type="text" id="adminUsername" required placeholder="Enter username" style="width:100%; margin-bottom: 1rem;" />
+
+      <label for="adminPassword">Password:</label>
+      <input type="password" id="adminPassword" required placeholder="Enter password" style="width:100%; margin-bottom: 1rem;" />
+
+      <button type="submit" style="width:100%; padding: 0.75rem; background: #007bff; color: white; border: none; border-radius: 6px;">Login</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("adminLoginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("adminUsername").value.trim();
+      const password = document.getElementById("adminPassword").value.trim();
+
+      if (username === "admin" && password === "admin123") {
+        localStorage.setItem("adminLoggedIn", "true");
+        window.location.href = "admin_login_manager.html";
+      } else {
+        alert("Invalid admin credentials.");
+      }
+    });
+  </script>
+</body>
+</html>

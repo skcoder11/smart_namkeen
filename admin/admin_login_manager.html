@@ -1,0 +1,198 @@
+<!-- Author: Kashif Shaikh -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="creator" content="@Kashif Shaikh" />
+  <meta name="description" content="SMART GRUH UDHYOG Admin Panel" />
+  <link rel="shortcut icon" href="../assets/img/smarts.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <title>Admin - Manage Dealer Logins</title>
+</head>
+<body>
+
+<!--==================== HEADER ====================-->
+<header class="header" id="header">
+  <nav class="nav container">
+    <a href="#" class="nav__logo" title="SMART GRUH UDHYOG">
+      <img src="../assets/img/smarts.jpg" class="logo" alt="logo" height="10" weight="10" />
+    </a>
+    <div class="nav__menu" id="nav-menu">
+      <ul class="nav__list">
+        <li><a href="user/home.html" class="nav__link">Home</a></li>
+        <li><a href="admin_login_manager.html" class="nav__link active-link">Admin Panel</a></li>
+		<li><a href="admin.html" class="nav__link">Product Panel</a></li>
+        <li><a href="adminorder.html" class="nav__link">Order History</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<br><br><br>
+
+<!--==================== ADMIN PANEL ====================-->
+<section class="section" style="min-height: 60vh;">
+  <h2 class="section__title">Manage Dealer Logins</h2>
+  <div class="container" style="max-width: 600px; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    
+    <!-- Add Dealer Form -->
+    <form id="addDealerForm" style="margin-bottom: 2rem;">
+      <div class="form-group">
+        <label for="newDealerId">Dealer ID</label>
+        <input type="text" id="newDealerId" required placeholder="Enter Dealer ID" style="width:100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc;" />
+      </div>
+      <div class="form-group">
+        <label for="newPassword">Password</label>
+        <input type="text" id="newPassword" required placeholder="Enter Password" style="width:100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc;" />
+      </div>
+      <div class="form-group">
+        <label for="newName">Customer Name</label>
+        <input type="text" id="newName" required placeholder="Enter Customer Name" style="width:100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc;" />
+      </div>
+      <div class="form-group">
+        <label for="newCompany">Company Name</label>
+        <input type="text" id="newCompany" required placeholder="Enter Company Name" style="width:100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc;" />
+      </div>
+      <div class="form-group">
+        <label for="newPhone">Phone Number</label>
+        <input type="text" id="newPhone" required placeholder="Enter Phone Number" style="width:100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc;" />
+      </div>
+      <div class="form-group">
+        <label for="newAddress">Address</label>
+        <input type="text" id="newAddress" required placeholder="Enter Address" style="width:100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc;" />
+      </div>
+      <button type="submit" style="width: 100%; background: #007bff; color: white; border: none; padding: 0.75rem; border-radius: 6px;">Add Dealer</button>
+    </form>
+
+    <!-- Dealer List -->
+    <h3 style="margin-bottom: 1rem;">Current Dealers:</h3>
+    <ul id="dealerList" style="list-style: none; padding: 0;"></ul>
+    <button onclick="adminLogout()" style="background: #e74c3c; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;">Logout</button>
+  </div>
+</section>
+
+
+   <!--========== SCROLL UP ==========-->
+   <a href="#" class="scrollup"  id="scroll-up" aria-label="icon">
+      <i class="ri-arrow-up-double-line"></i>
+   </a>
+
+   <!--=============== SCROLLREVEAL ===============-->
+   <script src="../assets/js/scrollreveal.min.js"></script>
+
+   <!--=============== SWIPER JS CDN ===============-->
+   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+   <!--=============== MAIN JS ===============-->
+   <script src="../assets/js/main.js"></script>
+
+<script>
+  let dealerList = JSON.parse(localStorage.getItem("dealers")) || [];
+
+  function renderDealers() {
+    const listEl = document.getElementById("dealerList");
+    listEl.innerHTML = "";
+
+    if (dealerList.length === 0) {
+      listEl.innerHTML = "<li style='color: gray;'>No dealers added yet.</li>";
+      return;
+    }
+
+    dealerList.forEach((dealer, index) => {
+      const li = document.createElement("li");
+      li.style.cssText = "display: flex; flex-direction: column; background: #f9f9f9; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;";
+
+      li.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>👤 ${dealer.id}</strong>
+          <button onclick="removeDealer(${index})" style="background: #dc3545; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer;">Remove</button>
+        </div>
+        <div style="margin-top: 0.5rem;">
+          <label>Password:</label>
+          <input type="text" id="pwInput${index}" value="${dealer.pw}" style="width: 100%; padding: 0.4rem; border: 1px solid #ccc; border-radius: 5px;" />
+          <label>Name:</label>
+          <input type="text" id="nameInput${index}" value="${dealer.name}" style="width: 100%; padding: 0.4rem; border: 1px solid #ccc; border-radius: 5px;" />
+          <label>Company:</label>
+          <input type="text" id="companyInput${index}" value="${dealer.company}" style="width: 100%; padding: 0.4rem; border: 1px solid #ccc; border-radius: 5px;" />
+          <label>Phone:</label>
+          <input type="text" id="phoneInput${index}" value="${dealer.phone}" style="width: 100%; padding: 0.4rem; border: 1px solid #ccc; border-radius: 5px;" />
+          <label>Address:</label>
+          <input type="text" id="addressInput${index}" value="${dealer.address}" style="width: 100%; padding: 0.4rem; border: 1px solid #ccc; border-radius: 5px;" />
+          <button onclick="updateDealer(${index})" style="margin-top: 0.5rem; background: #28a745; color: white; border: none; padding: 0.4rem 1rem; border-radius: 5px;">Update Info</button>
+        </div>
+      `;
+      listEl.appendChild(li);
+    });
+  }
+
+  function removeDealer(index) {
+    if (confirm("Are you sure you want to remove this dealer?")) {
+      dealerList.splice(index, 1);
+      localStorage.setItem("dealers", JSON.stringify(dealerList));
+      renderDealers();
+    }
+  }
+
+  function updateDealer(index) {
+    dealerList[index].pw = document.getElementById(`pwInput${index}`).value.trim();
+    dealerList[index].name = document.getElementById(`nameInput${index}`).value.trim();
+    dealerList[index].company = document.getElementById(`companyInput${index}`).value.trim();
+    dealerList[index].phone = document.getElementById(`phoneInput${index}`).value.trim();
+    dealerList[index].address = document.getElementById(`addressInput${index}`).value.trim();
+    localStorage.setItem("dealers", JSON.stringify(dealerList));
+    alert("Dealer info updated successfully!");
+  }
+
+  document.getElementById("addDealerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const id = document.getElementById("newDealerId").value.trim();
+    const pw = document.getElementById("newPassword").value.trim();
+    const name = document.getElementById("newName").value.trim();
+    const company = document.getElementById("newCompany").value.trim();
+    const phone = document.getElementById("newPhone").value.trim();
+    const address = document.getElementById("newAddress").value.trim();
+
+    if (id && pw) {
+      if (dealerList.some(d => d.id === id)) {
+        alert("Dealer ID already exists.");
+        return;
+      }
+
+      dealerList.push({ id, pw, name, company, phone, address });
+      localStorage.setItem("dealers", JSON.stringify(dealerList));
+      renderDealers();
+      this.reset();
+    }
+  });
+
+  renderDealers();
+</script>
+
+<script>
+  if (localStorage.getItem("adminLoggedIn") !== "true") {
+    alert("You must be logged in as admin to access this page.");
+    window.location.href = "admin_login.html";
+  }
+</script>
+
+<script>
+  window.addEventListener("load", () => {
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
+      const inputs = document.querySelectorAll("input, button, select");
+      inputs.forEach(el => el.disabled = true);
+    }
+  });
+</script>
+
+<script>
+  function adminLogout() {
+    localStorage.removeItem("adminLoggedIn");
+    alert("You have been logged out.");
+    window.location.href = "admin_login.html";
+  }
+</script>
+
+</body>
+</html>
