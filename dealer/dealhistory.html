@@ -1,0 +1,174 @@
+<!-- Author : Kashif Shaikh -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="creator" content="@Kashif Shaikh">
+  <meta name="description" content="SMART GRUH UDHYOG">
+  <link rel="shortcut icon" href="../assets/img/smarts.jpg" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <title>Order History - SMART GRUH UDHYOG</title>
+</head>
+<body>
+
+<!--==================== HEADER ====================-->
+<header class="header" id="header">
+  <nav class="nav container">
+    <a href="home.html" class="nav__logo" title="SMART GRUH UDHYOG">
+      <img src="../assets/img/smarts.jpg" class="logo" id="logo" alt="" height="10" weight="10">
+    </a>
+
+    <div class="nav__menu" id="nav-menu">
+      <ul class="nav__list">
+        <li><a href="dealhome.html" class="nav__link">Home</a></li>
+        <li><a href="dealabout.html" class="nav__link">About Us</a></li>
+        <li><a href="dealvariety.html" class="nav__link">Varieties</a></li>
+        <li><a href="dealhistory.html" class="nav__link active-link">History</a></li>
+        <li><a href="dealcontact.html" class="nav__link">Contact Us</a></li>
+        <li id="loginStatus" class="nav__right nav__link"></li>
+      </ul>
+      <div class="nav__close" id="nav-close"><i class="ri-close-large-line"></i></div>
+    </div>
+    <div class="nav__toggle" id="nav-toggle"><i class="ri-apps-2-add-line"></i></div>
+  </nav>
+</header>
+
+<br><br><br>
+
+<!--==================== ORDER HISTORY ====================-->
+<section class="products section">
+  <h2 class="section__title">Your Order History</h2>
+  <div class="container" style="max-width: 900px; margin-top: 2rem;">
+    <div id="orderHistory"></div>
+  </div>
+</section>
+
+<br><br><br>
+
+<!--==================== FOOTER ====================-->
+<footer class="footer">
+  <div class="footer__container container grid">
+    <a href="#" class="footer__logo" title="SMART GRUH UDHYOG">SMART GRUH UDHYOG</a>
+    <div class="footer__content grid">
+      <a href="https://maps.app.goo.gl/aWCg7xQtHc84DWJz8" class="footer__link">
+        <h4> Address: </h4>
+        <p>B/4, Ghodasar, Ahmedabad, Gujarat 382440</p>
+      </a>
+
+      <span class="footer__copy">
+        2025 &#169; All Rights Reserved By SMART GRUH UDHYOG <br>
+        Designed and Developed By <a href="https://www.instagram.com/coder_kashif" class="footer__link">Kashif Shaikh</a>
+      </span>
+
+      <div class="nav__social">
+        <a href="https://www.facebook.com/share/1LQp8RmCTR/" target="_blank" class="nav__social-link"><i class="ri-facebook-circle-line"></i></a>
+        <a href="https://www.instagram.com/smartnamkeen" target="_blank" class="nav__social-link"><i class="ri-instagram-line"></i></a>
+        <a href="https://www.linkedin.com/in/smart-gruh-udhyog-51371962" target="_blank" class="nav__social-link"><i class="ri-linkedin-box-line"></i></a>
+        <a href="https://wa.link/djdw7h" target="_blank" class="nav__social-link"><i class="ri-whatsapp-line"></i></a>
+        <a href="mailto:smartgruhudhyog@gmail.com" class="nav__social-link"><i class="ri-mail-line"></i></a>
+        <a href="tel:+919376931020" class="nav__social-link"><i class="ri-phone-line"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+<a href="#" class="scrollup" id="scroll-up"><i class="ri-arrow-up-double-line"></i></a>
+
+<script src="../assets/js/scrollreveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  const historyContainer = document.getElementById("orderHistory");
+  const history = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+
+  if (history.length === 0) {
+    historyContainer.innerHTML = "<p style='text-align:center;'>No past orders found.</p>";
+    return;
+  }
+
+  historyContainer.innerHTML = history.map((order, index) => {
+    return `
+      <div style="margin-bottom: 1rem; padding: 1rem; background: #fff; border: 1px solid #ccc; border-radius: 10px;">
+        <strong>Date:</strong> ${order.timestamp}<br>
+        <strong>Dealer ID:</strong> ${order.dealerId || "N/A"}<br>
+        <ul style="margin: 0.5rem 0 0 1rem;">
+          ${order.items.map(item => `<li>${item.name} - Qty: ${item.quantity} @ ₹${item.price} = ₹${item.quantity * item.price}</li>`).join('')}
+        </ul>
+        <strong>Total:</strong> ₹${order.items.reduce((total, item) => total + (item.quantity * item.price), 0)}<br>
+        <button onclick="downloadReceipt(${index})" style="margin-top: 10px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Download Receipt</button>
+      </div>
+    `;
+  }).join('');
+});
+
+async function downloadReceipt(index) {
+  const { jsPDF } = window.jspdf;
+  const history = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+  const order = history[index];
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const marginLeft = 20;
+  let y = 20;
+
+  doc.setFontSize(18);
+  doc.text("SMART GRUH UDHYOG", marginLeft, y);
+  y += 10;
+
+  doc.setFontSize(12);
+  doc.text(`Dealer ID: ${order.dealerId || "N/A"}`, marginLeft, y);
+  y += 6;
+  doc.text(`Date: ${order.timestamp}`, marginLeft, y);
+  y += 10;
+
+  doc.setFontSize(14);
+  doc.text("Product List", marginLeft, y);
+  y += 8;
+
+  doc.setFontSize(12);
+  let total = 0;
+  order.items.forEach(item => {
+    const itemTotal = item.quantity * item.price;
+    total += itemTotal;
+    doc.text(`${item.name} | Qty: ${item.quantity} | Rate: ₹${item.price} | Total: ₹${itemTotal}`, marginLeft, y);
+    y += 7;
+  });
+
+  y += 8;
+  doc.setFontSize(14);
+  doc.text(`Grand Total: ₹${total}`, marginLeft, y);
+  y += 10;
+
+  doc.setFontSize(10);
+  doc.text("Thank you for your order!", marginLeft, y);
+
+  const fileName = `Receipt_${order.timestamp.replace(/[:\s/]/g, "_")}.pdf`;
+  doc.save(fileName);
+}
+</script>
+
+<script>
+const loginStatus = document.getElementById("loginStatus");
+const dealerId = localStorage.getItem("dealerId");
+
+if (dealerId) {
+  loginStatus.innerHTML = `
+    <span style="margin-right: 1rem;">👤 ${dealerId}</span>
+    <a href="#" id="logoutBtn" class="nav__link">Logout</a>
+  `;
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    localStorage.removeItem("dealerId");
+    window.location.href = "../user/variety.html";
+  });
+} else {
+  loginStatus.innerHTML = `<a href="smartlogin.html" class="nav__link">Login</a>`;
+}
+</script>
+
+</body>
+</html>

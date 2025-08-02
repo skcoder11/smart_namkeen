@@ -1,0 +1,117 @@
+<!-- Author : Kashif Shaikh -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="creator" content="@Kashif Shaikh">
+  <meta name="description" content="SMART GRUH UDHYOG">
+  <link rel="shortcut icon" href="../assets/img/smarts.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <title>Dealer Login - SMART GRUH UDHYOG</title>
+  
+</head>
+<body>
+
+  <!--==================== HEADER ====================-->
+  <header class="header" id="header">
+    <nav class="nav container">
+      <a href="home.html" class="nav__logo" title="SMART GRUH UDHYOG">
+        <img src="../assets/img/smarts.jpg" class="logo" alt="logo" height="10" weight="10">
+      </a>
+
+      <div class="nav__menu" id="nav-menu">
+        <ul class="nav__list">
+          <li><a href="../user/home.html" class="nav__link">Home</a></li>
+          <li><a href="../user/about.html" class="nav__link">About Us</a></li>
+          <li><a href="../user/variety.html" class="nav__link">Varieties</a></li>
+          <li><a href="../user/dealer.html" class="nav__link">Dealership</a></li>
+          <li><a href="../user/contact.html" class="nav__link">Contact Us</a></li>
+          <li><a href="smartlogin.html" class="nav__link active-link">Login</a></li>
+        </ul>
+        <div class="nav__close" id="nav-close">
+          <i class="ri-close-large-line"></i>
+        </div>
+      </div>
+
+      <div class="nav__toggle" id="nav-toggle">
+        <i class="ri-apps-2-add-line"></i>
+      </div>
+    </nav>
+  </header>
+
+  <br><br><br>
+
+  <!--==================== LOGIN FORM ====================-->
+  <section class="section" style="min-height: 60vh;">
+    <h2 class="section__title">Dealer Login</h2>
+    <div class="container" style="max-width: 400px; margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+      <form id="loginForm">
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="dealerId" style="display: block; margin-bottom: 0.5rem;">Dealer ID</label>
+          <input type="text" id="dealerId" name="dealerId" required placeholder="Enter your dealer ID" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="password" style="display: block; margin-bottom: 0.5rem;">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter your password" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px;">
+        </div>
+        <button type="submit" style="width: 100%; padding: 0.75rem; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">Login</button>
+      </form>
+    </div>
+  </section>
+
+  <br><br>
+
+  <!--==================== FOOTER ====================-->
+  <footer class="footer">
+    <div class="footer__container container grid">
+      <a href="#" class="footer__logo" title="SMART GRUH UDHYOG">SMART GRUH UDHYOG</a>
+      <div class="footer__content grid">
+        <a href="https://maps.app.goo.gl/aWCg7xQtHc84DWJz8" class="footer__link">
+          <h4>Address:</h4>
+          <p>B/4, Ghodasar, Ahmedabad, Gujarat 382440</p>
+        </a>
+
+        <span class="footer__copy">
+          2025 &#169; All Rights Reserved By SMART GRUH UDHYOG <br>
+          Designed and Developed By 
+          <a href="https://www.instagram.com/coder_kashif" class="footer__link">Kashif Shaikh</a>
+        </span>
+
+        <div class="nav__social">
+          <a href="https://www.facebook.com/share/1LQp8RmCTR/" target="_blank" class="nav__social-link"><i class="ri-facebook-circle-line"></i></a>
+          <a href="https://www.instagram.com/smartnamkeen" target="_blank" class="nav__social-link"><i class="ri-instagram-line"></i></a>
+          <a href="https://www.linkedin.com/in/smart-gruh-udhyog-51371962" target="_blank" class="nav__social-link"><i class="ri-linkedin-box-line"></i></a>
+          <a href="https://wa.link/djdw7h" target="_blank" class="nav__social-link"><i class="ri-whatsapp-line"></i></a>
+          <a href="mailto:smartgruhudhyog@gmail.com" class="nav__social-link"><i class="ri-mail-line"></i></a>
+          <a href="tel:+919376931020" class="nav__social-link"><i class="ri-phone-line"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" class="scrollup" id="scroll-up"><i class="ri-arrow-up-double-line"></i></a>
+
+  <script src="assets/js/scrollreveal.min.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+  document.getElementById("loginForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const dealerId = document.getElementById("dealerId").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  const dealers = JSON.parse(localStorage.getItem("dealers")) || [];
+  const found = dealers.find(d => d.id === dealerId && d.pw === password);
+
+  if (found) {
+    localStorage.setItem("dealerId", dealerId);
+    alert("Login successful!");
+    window.location.href = "dealvariety.html";
+  } else {
+    alert("Invalid Dealer ID or Password");
+  }
+});
+</script>
+</body>
+</html>
